@@ -6,3 +6,5 @@ Welcome to WhatNEXT. This is an Machine Learning based web application in which 
 Search for a movie for better experience.
 
 ![Screenshot 2022-06-26 at 11 42 30 PM](https://user-images.githubusercontent.com/27896839/175828438-51e9a3a5-e495-4294-a789-8ff2361e4030.png)
+
+![Screenshot 2022-06-26 at 11 51 00 PM](https://user-images.githubusercontent.com/27896839/175828532-f9a8257e-db9c-451e-9ba6-1a79d06cc335.png)
