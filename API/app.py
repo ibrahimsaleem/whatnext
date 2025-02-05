@@ -154,7 +154,7 @@ def recommend_movie():
 
 @app.route("/", methods=["POST", "GET"])
 def home():
-    return json.dumps({"result": "This is Movie Recommender API"}, default=convert)
+    return (json.dumps({"result": "This is Movie Recommender API"}, default=convert), {'Content-Type': 'application/json'})
 
 
 if __name__ == "__main__":
