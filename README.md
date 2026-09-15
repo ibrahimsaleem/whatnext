@@ -2,10 +2,9 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-WhatNEXT-brightgreen)](https://whatnext-movie.web.app/)
 [![Frontend](https://img.shields.io/badge/Frontend-React-blue)](https://reactjs.org/)
-[![Backend](https://img.shields.io/badge/Backend-Flask-red)](https://flask.palletsprojects.com/)
-[![ML](https://img.shields.io/badge/ML-scikit--learn-orange)](https://scikit-learn.org/)
+[![No Backend](https://img.shields.io/badge/Backend-None%20needed-success)]()
 
-A machine learning-based web application that provides movie recommendations based on user search preferences. Built with React.js frontend and Flask backend, featuring content-based recommendation algorithms.
+A machine learning-based web application that provides movie recommendations based on user search preferences. The whole app — including the content-based recommendation model — runs client-side in React, with no server to deploy or keep running.
 
 ## 🌟 Features
 
@@ -28,18 +27,25 @@ A machine learning-based web application that provides movie recommendations bas
 
 ## 🏗️ Architecture
 
+The app is now fully static and self-contained — the recommendation engine
+runs entirely in the browser, so there's nothing to deploy or keep running
+besides the Firebase-hosted frontend.
+
 ### Frontend (React.js)
 - **Framework**: React 17
 - **UI Library**: Material-UI
-- **HTTP Client**: Axios
+- **Recommendation Engine**: `src/recommender/engine.js` — a client-side
+  port of the content-based filtering model (bag-of-words feature vectors +
+  cosine similarity, with a fuzzy title-match fallback), running against a
+  bundled dataset (`public/data/movie_dataset.json`)
+- **HTTP Client**: Axios (used only for TMDB API calls)
 - **Deployment**: Firebase Hosting
 
-### Backend (Python Flask)
-- **Framework**: Flask
-- **ML Libraries**: scikit-learn, pandas, numpy
-- **NLP**: NLTK for text processing
-- **External APIs**: TMDB API, YouTube API
-- **Deployment**: Heroku
+### Legacy Backend (Python Flask, optional)
+The original `API/app.py` Flask service that used to serve
+`/recommend_movie` is kept in the repo for reference but is **no longer
+required** — the frontend no longer calls it. It was previously deployed to
+Heroku, whose free tier has since been discontinued.
 
 ## 🧠 Machine Learning Pipeline
 
@@ -61,15 +67,18 @@ A machine learning-based web application that provides movie recommendations bas
 WhatNEXT/
 ├── Frontend/
 │   └── whatnext/
+│       ├── public/
+│       │   └── data/movie_dataset.json  # Bundled movie dataset
 │       ├── src/
 │       │   ├── components/          # React components
-│       │   ├── api/                 # API configurations
+│       │   ├── api/                 # TMDB API client
+│       │   ├── recommender/         # Client-side recommendation engine
 │       │   └── utils.js            # Utility functions
 │       └── package.json
-├── API/
-│   ├── app.py                      # Flask backend
-│   └── final_data.csv              # Movie dataset
-├── build/                          # Production build
+├── API/                             # Legacy Flask backend (unused, kept for reference)
+│   ├── app.py
+│   └── final_data.csv              # Source movie dataset
+├── build/                          # Production build (deployed to Firebase)
 ├── firebase.json                   # Firebase config
 └── README.md
 ```
@@ -78,42 +87,18 @@ WhatNEXT/
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- Python 3.7+
 - npm or yarn
 
-### Frontend Setup
+### Setup
 ```bash
 cd Frontend/whatnext
 npm install
 npm start
 ```
 
-### Backend Setup
-```bash
-cd API
-pip install -r requirements.txt
-python app.py
-```
-
-### Environment Variables
-Create a `.env` file in the API directory:
-```env
-TMDB_API_KEY=your_tmdb_api_key_here
-```
-
-## 🔧 API Endpoints
-
-### Movie Recommendation
-- **URL**: `/recommend_movie`
-- **Method**: POST
-- **Parameters**:
-  - `movie_name`: Name of the movie to search
-  - `number_of_recommendations`: Number of recommendations (default: 10)
-
-### Health Check
-- **URL**: `/`
-- **Method**: GET
-- **Response**: API status confirmation
+That's it — no backend process, database, or API key setup is needed to run
+the app locally. The recommendation engine and dataset ship with the
+frontend bundle.
 
 ## 🚀 Deployment
 
@@ -121,15 +106,9 @@ TMDB_API_KEY=your_tmdb_api_key_here
 ```bash
 cd Frontend/whatnext
 npm run build
+# copy the build output to the repo-root `build/` directory that
+# firebase.json's "hosting.public" points at, then:
 firebase deploy
-```
-
-### Backend (Heroku)
-```bash
-cd API
-git add .
-git commit -m "Deploy to Heroku"
-git push heroku main
 ```
 
 ## 🧪 Technologies Used
@@ -139,18 +118,10 @@ git push heroku main
 - Material-UI
 - Axios
 - React YouTube
-
-### Backend
-- Flask
-- scikit-learn
-- pandas
-- numpy
-- NLTK
 - TMDB API
 
 ### Deployment
 - Firebase Hosting
-- Heroku
 
 ## 🤝 Contributing
 
@@ -176,4 +147,4 @@ For questions or support, please open an issue in this repository.
 
 ---
 
-**Made with ❤️ using React, Flask, and Machine Learning**
+**Made with ❤️ using React and Machine Learning**

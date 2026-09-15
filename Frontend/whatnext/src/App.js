@@ -5,7 +5,7 @@ import {
   getMovieData,
   getRecommendedMoviesData,
 } from "./utils";
-import recommender_api from "./api/recommenderapi";
+import { recommendMovies, preloadRecommenderData } from "./recommender/engine";
 import "./App.css";
 import { Button } from "@material-ui/core";
 import RowMovieCard from "./components/RowMovieCard";
@@ -25,25 +25,19 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadMovieNames = () => {
-      setMovies(movie_names.movie_names);
-    };
-
-    const dummieAPIRequest = async () => {
-      await recommender_api.get("/");
-    };
-
-    loadMovieNames();
-    dummieAPIRequest();
+    setMovies(movie_names.movie_names);
+    // Warm the recommendation dataset in the background so it's ready by
+    // the time the user hits "Search".
+    preloadRecommenderData();
   }, []);
 
   const onChangeHandler = (text_value) => {
     let matches = [];
     if (text_value.length > 0) {
-      matches = movies.filter((movie) => {
-        const regex = new RegExp(`${text}`, "gi");
-        return movie.title.match(regex);
-      });
+      const lowerText = text_value.toLowerCase();
+      matches = movies.filter((movie) =>
+        movie.title.toLowerCase().includes(lowerText)
+      );
     }
 
     if (matches.length > 10) matches = matches.slice(0, 8);
@@ -61,34 +55,39 @@ function App() {
     setLoading(true);
     setError(null);
 
-    const request = new FormData();
-    request.append("movie_name", movie_name);
-    request.append("number_of_recommendations", 10);
+    try {
+      const responseData = await recommendMovies(movie_name, 10);
 
-    const response = await recommender_api.post("/recommend_movie", request);
+      if (responseData.error) {
+        setError(responseData.error);
+      } else {
+        const movie_data = await getMovieData(responseData.input_movie.movie_id);
+        const recommendations_movie_data = await getRecommendedMoviesData(
+          responseData.recommendations
+        );
 
-    const responseData = response.data;
-    if (responseData.error) {
-      setError(responseData.error);
-    } else {
-      const movie_data = await getMovieData(responseData.input_movie.movie_id);
-      const recommendations_movie_data = await getRecommendedMoviesData(
-        responseData.recommendations
+        setInputMovieData(movie_data);
+        setRecommendedMovies(recommendations_movie_data);
+      }
+    } catch (err) {
+      setError(
+        "Something went wrong while fetching recommendations. Please check your connection and try again."
       );
-
-
-      setInputMovieData(movie_data);
-      setRecommendedMovies(recommendations_movie_data);
-
-      setLoading(false);
-      
     }
-    
+
     setLoading(false);
   };
 
   const handleClick = async () => {
+    if (text.trim() === "") return;
     await movieHandler(text);
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      setSuggestions(null);
+      handleClick();
+    }
   };
 
   const handleCardClick = async (movie_name) => {
@@ -145,6 +144,7 @@ function App() {
             className="search_input"
             value={text}
             onChange={(e) => onChangeHandler(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             onBlur={() => {
               setTimeout(() => {
                 setSuggestions(null);
