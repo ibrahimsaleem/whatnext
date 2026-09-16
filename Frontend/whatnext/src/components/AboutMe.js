@@ -17,18 +17,9 @@ function AboutMe() {
             src={`${process.env.PUBLIC_URL}/assets/ibrahimsaleem.png`}
             alt="Mohd IBRAHIM SALEEM"
           />
+          <div className="aboutme_card__divider"></div>
           <div className="aboutme_card__content">
             <h1 className="about_name">Mohd Ibrahim Saleem</h1>
-            <div
-              className="stroke"
-              style={{
-                backgroundColor: "white",
-                height: "1px",
-                width: "100%",
-                marginTop: "4px",
-              }}
-            ></div>
-            <br />
             <p>
             Hi Everyone, I am Mohd Ibrahim Saleem from Bhopal, India.
 I am pursuing BTech in Computer Science and Engineering with my major in Cyber Security and Machine Learning.

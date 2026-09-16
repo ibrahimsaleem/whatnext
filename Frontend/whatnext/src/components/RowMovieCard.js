@@ -8,20 +8,33 @@ import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles({
   root: {
-    width: "250px",
-    height: "500px",
-    boxShadow: "0 0 8px gray",
-    backgroundColor: "#424242",
+    width: "220px",
+    height: "420px",
+    backgroundColor: "#1b1e26",
+    border: "1px solid #333844",
+    borderRadius: "12px",
+    overflow: "hidden",
+    transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+    "&:hover": {
+      transform: "translateY(-6px)",
+      borderColor: "#e3b341",
+      boxShadow: "0 16px 32px rgba(0, 0, 0, 0.45)",
+    },
   },
   root_wrapper: {
-    width: "100%",
-    margin: "10px 20px 10px 0",
+    width: "auto",
+  },
+  card_title: {
+    fontFamily: "'Fraunces', serif",
+    fontWeight: 600,
+    color: "#e3b341",
   },
   card_content: {
-    color: "rgba(255, 255, 255, 0.7)",
+    color: "#9aa1ad",
+    fontFamily: "'IBM Plex Sans', sans-serif",
   },
   image_cover: {
-    height: "360px",
+    height: "300px",
   },
 });
 
@@ -44,7 +57,7 @@ function RowMovieCard(props) {
           />
           <CardContent style={{ padding: "10px" }}>
             <Typography
-              className="card_title"
+              className={classes.card_title}
               gutterBottom
               variant="h6"
               component="h6"

@@ -140,19 +140,37 @@ function App() {
       {/* Search */}
       <div className="app__search_container">
         <div className="search_wrapper">
-          <input
-            className="search_input"
-            value={text}
-            onChange={(e) => onChangeHandler(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            onBlur={() => {
-              setTimeout(() => {
-                setSuggestions(null);
-              }, 200);
-            }}
-            type="text"
-            placeholder="Type Movie Name"
-          />
+          <div className="search_input_wrapper">
+            <input
+              className="search_input"
+              value={text}
+              onChange={(e) => onChangeHandler(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              onBlur={() => {
+                setTimeout(() => {
+                  setSuggestions(null);
+                }, 200);
+              }}
+              type="text"
+              placeholder="Type a movie name"
+            />
+
+            {suggestions && suggestions.length > 0 && (
+              <div className="suggestion_container">
+                {suggestions.map((suggestion, i) => {
+                  return (
+                    <div
+                      className="suggestion"
+                      onClick={() => onSuggestHandler(suggestion.title)}
+                      key={i}
+                    >
+                      {suggestion.title}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <Button
             className="search_button"
@@ -164,22 +182,6 @@ function App() {
           >
             Search
           </Button>
-
-          {suggestions && (
-            <div className="suggestion_container">
-              {suggestions.map((suggestion, i) => {
-                return (
-                  <div
-                    className="suggestion"
-                    onClick={() => onSuggestHandler(suggestion.title)}
-                    key={i}
-                  >
-                    {suggestion.title}
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
 

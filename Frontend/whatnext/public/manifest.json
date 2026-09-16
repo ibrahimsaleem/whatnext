@@ -3,13 +3,13 @@
   "name": "Whatnext",
   "icons": [
     {
-      "src": "assets/loading.gif",
+      "src": "assets/logo.png",
       "type": "image/png",
-      "sizes": "500x500"
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#12141a",
+  "background_color": "#12141a"
 }
