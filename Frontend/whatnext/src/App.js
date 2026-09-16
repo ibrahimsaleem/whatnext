@@ -15,10 +15,28 @@ import TitleCard from "./components/TitleCard";
 import Loading from "./components/Loading";
 import Error from "./components/Error";
 
+// Wraps the substring of `title` that matches `query` in a highlight span.
+function highlightMatch(title, query) {
+  if (!query) return title;
+  const matchIndex = title.toLowerCase().indexOf(query.toLowerCase());
+  if (matchIndex === -1) return title;
+
+  return (
+    <>
+      {title.slice(0, matchIndex)}
+      <span className="suggestion_match">
+        {title.slice(matchIndex, matchIndex + query.length)}
+      </span>
+      {title.slice(matchIndex + query.length)}
+    </>
+  );
+}
+
 function App() {
   const [movies, setMovies] = useState([]);
   const [text, setText] = useState("");
   const [suggestions, setSuggestions] = useState(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [recommendedMovies, setRecommendedMovies] = useState(null);
   const [inputMovieData, setInputMovieData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,22 +51,31 @@ function App() {
 
   const onChangeHandler = (text_value) => {
     let matches = [];
-    if (text_value.length > 0) {
+    if (text_value.trim().length > 0) {
       const lowerText = text_value.toLowerCase();
-      matches = movies.filter((movie) =>
-        movie.title.toLowerCase().includes(lowerText)
-      );
+      matches = movies
+        .filter((movie) => movie.title.toLowerCase().includes(lowerText))
+        .sort((a, b) => {
+          const aTitle = a.title.toLowerCase();
+          const bTitle = b.title.toLowerCase();
+          const aStartsWith = aTitle.startsWith(lowerText) ? 0 : 1;
+          const bStartsWith = bTitle.startsWith(lowerText) ? 0 : 1;
+          if (aStartsWith !== bStartsWith) return aStartsWith - bStartsWith;
+          return aTitle.localeCompare(bTitle);
+        })
+        .slice(0, 8);
     }
 
-    if (matches.length > 10) matches = matches.slice(0, 8);
-
-    setSuggestions(matches);
+    setSuggestions(text_value.trim().length > 0 ? matches : null);
+    setHighlightedIndex(-1);
     setText(text_value);
   };
 
-  const onSuggestHandler = (text_value) => {
-    setText(text_value);
+  const onSuggestHandler = (movie_title) => {
+    setText(movie_title);
     setSuggestions(null);
+    setHighlightedIndex(-1);
+    movieHandler(movie_title);
   };
 
   const movieHandler = async (movie_name) => {
@@ -84,6 +111,31 @@ function App() {
   };
 
   const handleSearchKeyDown = (e) => {
+    if (suggestions && suggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev + 1) % suggestions.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev <= 0 ? suggestions.length - 1 : prev - 1
+        );
+        return;
+      }
+      if (e.key === "Escape") {
+        setSuggestions(null);
+        setHighlightedIndex(-1);
+        return;
+      }
+      if (e.key === "Enter" && highlightedIndex >= 0) {
+        e.preventDefault();
+        onSuggestHandler(suggestions[highlightedIndex].title);
+        return;
+      }
+    }
+
     if (e.key === "Enter") {
       setSuggestions(null);
       handleClick();
@@ -155,19 +207,27 @@ function App() {
               placeholder="Type a movie name"
             />
 
-            {suggestions && suggestions.length > 0 && (
+            {suggestions && (
               <div className="suggestion_container">
-                {suggestions.map((suggestion, i) => {
-                  return (
+                {suggestions.length > 0 ? (
+                  suggestions.map((suggestion, i) => (
                     <div
-                      className="suggestion"
+                      className={
+                        "suggestion" +
+                        (i === highlightedIndex ? " suggestion--active" : "")
+                      }
+                      onMouseEnter={() => setHighlightedIndex(i)}
                       onClick={() => onSuggestHandler(suggestion.title)}
-                      key={i}
+                      key={suggestion.title}
                     >
-                      {suggestion.title}
+                      {highlightMatch(suggestion.title, text)}
                     </div>
-                  );
-                })}
+                  ))
+                ) : (
+                  <div className="suggestion suggestion_empty">
+                    No movies match "{text}"
+                  </div>
+                )}
               </div>
             )}
           </div>

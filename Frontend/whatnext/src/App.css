@@ -156,10 +156,27 @@ body {
   border-bottom: none;
 }
 
-.suggestion:hover {
+.suggestion:hover,
+.suggestion--active {
   cursor: pointer;
   background-color: rgba(227, 179, 65, 0.12);
   color: var(--gold);
+}
+
+.suggestion_match {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.suggestion_empty {
+  color: var(--ink-muted);
+  font-weight: 400;
+  cursor: default;
+}
+
+.suggestion_empty:hover {
+  background-color: transparent;
+  color: var(--ink-muted);
 }
 
 /* ---------- About application ---------- */
